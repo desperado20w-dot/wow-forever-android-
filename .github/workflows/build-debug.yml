@@ -1,0 +1,28 @@
+name: Build debug APK
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+      - name: Install NDK
+        run: sdkmanager "ndk;27.3.13750724"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Fetch bundled components
+        run: tools/fetch_components.sh
+      - name: Build
+        run: ./gradlew assembleModernDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: WoW-Forever-debug
+          path: app/build/outputs/apk/modern/debug/*.apk
